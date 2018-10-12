@@ -19,8 +19,11 @@ class App extends Component {
   }
 
   getUsers = async () => {
+    console.log("start");
     const response = await fetch('/api/users');
+    console.log("middle");
     const body = await response.json();
+    console.log("finish");
 
     if (body.length === 0) return "No subscribers";
     return body;
@@ -30,7 +33,7 @@ class App extends Component {
     const { devices, isFetched } = this.state;
     const users = devices.map((user, i) => {
       return <li key={i}>{user.name} : {(user.isSubscribed)? "true": "false"} : {user.registrationDate}</li>
-    })
+    });
     return (
       <div className="App">
         <header className="App-header">
