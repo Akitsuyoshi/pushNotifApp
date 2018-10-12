@@ -1,32 +1,45 @@
 import React, { Component } from 'react';
 import './App.css';
 
+import MDSpinner from "react-md-spinner";
+
 class App extends Component {
   state = {
-    response: ''
+    devices: [],
+    isFetched: false,
   };
 
   componentDidMount() {
-    this.callApi()
-      .then(res => this.setState({ response: res.express }))
+    this.getUsers()
+      .then(res => {
+        console.log(res);
+        return this.setState({ devices: res, isFetched: true});
+      })
       .catch(err => console.log(err));
   }
 
-  callApi = async () => {
-    const response = await fetch('/api/hello');
+  getUsers = async () => {
+    const response = await fetch('/api/users');
     const body = await response.json();
 
-    if (response.status !== 200) throw Error(body.message);
+    if (body.length === 0) return "No subscribers";
     return body;
   };
 
   render() {
+    const { devices, isFetched } = this.state;
+    const users = devices.map((user, i) => {
+      return <li key={i}>{user.name} : {(user.isSubscribed)? "true": "false"} : {user.registrationDate}</li>
+    })
     return (
       <div className="App">
         <header className="App-header">
           <h1 className="App-title">Welcome to React</h1>
         </header>
-        <p className="App-intro">{this.state.response}</p>
+        {(isFetched === false)? <div><MDSpinner size={40} /></div>: ""}
+        <ul>
+          {users}
+        </ul>
       </div>
     );
   }
