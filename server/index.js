@@ -6,14 +6,11 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 8001;
 
+const api = require('./api');
+
 app.use(morgan('dev'));
 app.use('/api', bodyParser.urlencoded({ extended: false }), bodyParser.json());
-
-
-// For /api/hello endpoind
-app.get('/api/hello', (req, res) => {
-  return res.send({ express: 'Hello From Express' });
-});
+app.use('/api', api);
 
 if (process.env.NODE_ENV === 'production') {
   // Serve any static files
