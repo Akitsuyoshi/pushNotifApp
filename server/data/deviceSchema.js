@@ -11,14 +11,6 @@ const deviceModelSchema = new Schema({
     notifications: [{ type: Schema.Types.ObjectId, ref: 'Notification' }],
 });
 
-const pushNotificationModelSchema = new Schema({
-    device: { type: Schema.Types.ObjectId, ref: 'Device' },
-    isSent: Boolean,
-    isOpened: Boolean,
-    sentDate: Date,
-});
-
 const Device = mongoose.model('Device', deviceModelSchema);
-const Notification = mongoose.model('Notification', deviceModelSchema);
 
-module.exports = { Device, Notification };
+module.exports = Device;

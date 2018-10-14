@@ -37,8 +37,20 @@ class App extends Component {
     return body;
   };
 
+  storeNotification = async (token) => {
+    const response = await fetch('/api/notification', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const body = await response.json();
+
+    return body;
+  }
+
   pushNotification = async (title, message, token) => {
-    console.log(title, token, message);
     const response = await fetch('/api/send', {
       method: 'POST',
       body: JSON.stringify({ title, message, token }),
@@ -51,6 +63,7 @@ class App extends Component {
     if (body.status === 'ok') {
       this.onCloseModal();
 
+      this.storeNotification(token);
     } else {
       alert('something wrong happed, it couldn\'t push notification');
     }
@@ -59,7 +72,7 @@ class App extends Component {
 
   onOpenModal = (e) => {
     const token = e.target.parentNode.getAttribute('token');
-    console.log(token);
+    
     this.setState({ open: true, user: token});
   };
 
