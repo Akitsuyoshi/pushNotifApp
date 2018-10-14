@@ -3,7 +3,8 @@ const express = require('express');
 const { Expo } = require('expo-server-sdk');
 
 const db = require('./data/index');
-const { Device } = require('./data/model');
+const Device = require('./data/deviceSchema');
+const Notification = require('./data/notificationSchema');
 
 const makeErrObj = msg => ({
   status: 'error',
@@ -61,6 +62,49 @@ module.exports = (app, io) => {
     }).catch((err) => {
       console.log(err);
     });
+  });
+
+  app.post('/api/notification', async (req, res) => {
+    const { token } = req.body;
+    if (!token) return;
+    try {
+      const notif = await Notification.findByDeviceToken(token);
+      const device = await Device.findOne({ "token": token });
+
+      const id = device._id;
+      console.log(id);
+      const newNotif = await Notification.create([{
+        device: id,
+        isSent: true,
+        isOpened: false,
+        sentDate: Date.now(),
+      }]);
+      console.log(newNotif);
+      return res.json(newNotif);
+    } catch (error) {
+      console.log(error);
+      return res.send(makeErrObj(error));
+    }
+  });
+
+  app.put('/api/notification', async (req, res) => {
+    const { deviceName, isOpened } = req.body;
+    try {
+      console.log('put is invoked here', deviceName);
+      const device = await Device.find({ "name": deviceName });
+      const id = device._id;
+      console.log(device, device._id);
+
+      Notification.findOneAndUpdate({ name: device._id }, { $set: { isOpened } }, { new: true }, (err, notif) => {
+        if (err) return res.send(makeErrObj(err));
+      }).then((notif) => {
+        console.log(notif);
+        return res.json(notif);
+      });
+    } catch (error) {
+      console.log(error);
+      return res.send(makeErrObj(error));
+    }
   });
 
   app.post('/api/send',(req, res) => {
