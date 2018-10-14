@@ -1,10 +1,16 @@
-
 const express = require('express');
 const { Expo } = require('expo-server-sdk');
 
 const db = require('./data/index');
 const Device = require('./data/deviceSchema');
 const Notification = require('./data/notificationSchema');
+
+// Here is each endpoint router
+const getUsers = require('./routeHandler/getUsers');
+const putUser = require('./routeHandler/putUsers');
+const postNotification = require('./routeHandler/postNotification');
+const putNotification = require('./routeHandler/putNotification');
+const postSend = require('./routeHandler/postSend');
 
 const makeErrObj = msg => ({
   status: 'error',
@@ -21,165 +27,21 @@ module.exports = (app, io) => {
     });
   });
   
-  app.get('/api/users', (req, res) => {
-    const errMsg = 'No users subscribed yet, sorry!';
-  
-    // It fetches only subscirbers
-    Device.find({'isSubscribed': true}, (err, users) => {
-      if (err) return res.status(400).send(makeErrObj(err));
-      if (users.length === 0) return res.status(200).send(makeErrObj(errMsg));
-    }).then((device) => {
-      return res.status(200).json(device);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  });
+  // It fetches only subscirbers
+  app.get('/api/users', getUsers);
 
-  app.put('/api/user', (req, res) => {
-    const { deviceName, os, isSubscribed, token } = req.body;
+  // It first seach device by deviceName, and then if it exists on db
+  // updates the isSubscribed column.
+  // If not, it creates a new device with the given data
+  app.put('/api/user', putUser);
 
-    // It first seach device by deviceName, and then if it exists on db
-    // updates the isSubscribed column.
-    // If not, it creates a new device with the given data
-    return Device.findOneAndUpdate({name: deviceName}, { $set: { isSubscribed } }, { new: true }, (err, device) => {
-      if (err) return res.send(makeErrObj(err));
-      if (!device) {
-        return Device.create([{
-          name: deviceName,
-          os,
-          isSubscribed,
-          token,
-          registrationDate: Date.now(),
-        }]).then((device) => {
-          return res.json(device);
-        }).catch((err) => {
-          console.log(err);
-        });
-      }
-    }).then((device) => {
-      return res.json(device);
-    }).catch((err) => {
-      console.log(err);
-    });
-  });
+  // It creates new post, mainly used from server-side
+  app.post('/api/notification', postNotification);
 
-  app.post('/api/notification', async (req, res) => {
-    const { token } = req.body;
-    if (!token) return;
-    try {
-      const notif = await Notification.findByDeviceToken(token);
-      const device = await Device.findOne({ "token": token });
 
-      const id = device._id;
-      console.log(id);
-      const newNotif = await Notification.create([{
-        device: id,
-        isSent: true,
-        isOpened: false,
-        sentDate: Date.now(),
-      }]);
-      console.log(newNotif);
-      return res.json(newNotif);
-    } catch (error) {
-      console.log(error);
-      return res.send(makeErrObj(error));
-    }
-  });
+  // It updates the notification with payload, isOpened
+  app.put('/api/notification', putNotification);
 
-  app.put('/api/notification', async (req, res) => {
-    const { deviceName, isOpened } = req.body;
-    try {
-      console.log('put is invoked here', deviceName);
-      const device = await Device.find({ "name": deviceName });
-      const id = device._id;
-      console.log(device, device._id);
-
-      Notification.findOneAndUpdate({ name: device._id }, { $set: { isOpened } }, { new: true }, (err, notif) => {
-        if (err) return res.send(makeErrObj(err));
-      }).then((notif) => {
-        console.log(notif);
-        return res.json(notif);
-      });
-    } catch (error) {
-      console.log(error);
-      return res.send(makeErrObj(error));
-    }
-  });
-
-  app.post('/api/send',(req, res) => {
-    const expo = new Expo();
-    console.log(expo);
-    const { title, message, token }  = req.body;
-
-    // It checks the validation of passed token
-    if (!Expo.isExpoPushToken(token)) {
-      console.error(`Push token ${token} is not a valid Expo push token`);
-      return;
-    }
-    const messages = [{
-      to: token,
-      sound: 'default',
-      body: title,
-      data: { body: message },
-    }];
-
-    const chunks = expo.chunkPushNotifications(messages);
-    const tickets = [];
-
-    (async () => {
-      // Send the chunks to the Expo push notification service. There are
-      // different strategies you could use. A simple one is to send one chunk at a
-      // time, which nicely spreads the load out over time:
-      try {
-        let ticketChunk = await expo.sendPushNotificationsAsync(chunks[0]);
-        console.log(ticketChunk);
-        tickets.push(...ticketChunk);
-        // NOTE: If a ticket contains an error code in ticket.details.error, you
-        // must handle it appropriately. The error codes are listed in the Expo
-      } catch (error) {
-        console.error(error);
-      }
-    })();
-
-    const receiptIds = [];
-    for (let ticket of tickets) {
-      // NOTE: Not all tickets have IDs; for example, tickets for notifications
-      // that could not be enqueued will have error information and no receipt ID.
-      if (ticket.id) {
-        receiptIds.push(ticket.id);
-      }
-    }
-
-    const receiptIdChunks = expo.chunkPushNotificationReceiptIds(receiptIds);
-    (async () => {
-      // Like sending notifications, there are different strategies you could use
-      // to retrieve batches of receipts from the Expo service.
-      for (let chunk of receiptIdChunks) {
-        try {
-          let receipts = await expo.getPushNotificationReceiptsAsync(chunk);
-          console.log(receipts);
-        
-          // The receipts specify whether Apple or Google successfully received the
-          // notification and information about an error, if one occurred.
-          for (let receipt of receipts) {
-            if (receipt.status === 'ok') {
-              continue;
-            } else if (receipt.status === 'error') {
-              console.error(`There was an error sending a notification: ${receipt.message}`);
-              if (receipt.details && receipt.details.error) {
-                // The error codes are listed in the Expo documentation:
-                // https://docs.expo.io/versions/latest/guides/push-notifications#response-format 
-                // You must handle the errors appropriately.
-                console.error(`The error code is ${receipt.details.error}`);
-              }
-            }
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    })();
-    return res.json({ status: 'ok' });
-  });
+  // It sends the notification to subscribers
+  app.post('/api/send', postSend);
 };
