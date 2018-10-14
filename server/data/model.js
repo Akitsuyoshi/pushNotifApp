@@ -6,6 +6,7 @@ const deviceModelSchema = new Schema({
     name: String,
     os: String,
     isSubscribed: Boolean,
+    token: String,
     registrationDate: Date,
     notifications: [{ type: Schema.Types.ObjectId, ref: 'Notification' }],
 });
