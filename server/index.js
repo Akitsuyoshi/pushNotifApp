@@ -10,6 +10,12 @@ const port = process.env.PORT || 8001;
 app.use(morgan('dev'));
 app.use('/api', bodyParser.urlencoded({ extended: false }), bodyParser.json());
 
+const listen = app.listen(port, () => console.log(`Listening on port ${port}`));
+const socket = io.listen(listen);
+
+require('./api')(app, socket);
+
+// routes in express are first come first served
 if (process.env.NODE_ENV === 'production') {
   // Serve any static files
   app.use(express.static(path.join(__dirname, '../client/build')));
@@ -18,10 +24,5 @@ if (process.env.NODE_ENV === 'production') {
     return res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
   });
 }
-
-const listen = app.listen(port, () => console.log(`Listening on port ${port}`));
-const socket = io.listen(listen);
-
-require('./api')(app, socket);
 
 module.exports = app;
