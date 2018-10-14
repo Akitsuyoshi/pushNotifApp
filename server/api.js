@@ -12,7 +12,7 @@ const makeErrObj = msg => ({
 
 router.get('/users', (req, res) => {
   const errMsg = 'No users subscribed yet, sorry!';
-  Device.find({}, (err, users) => {
+  Device.find({'isSubscribed': true}, (err, users) => {
     if (err) return res.status(400).send(makeErrObj(err));
     if (users.length === 0) return res.status(200).send(makeErrObj(errMsg));
   }).then((device) => {
@@ -20,9 +20,6 @@ router.get('/users', (req, res) => {
   })
   .catch((err) => {
     console.log(err);
-  })
-  .finally(() => {
-    db.close();
   });
 });
 
