@@ -1,9 +1,8 @@
 const express = require('express');
 const { Expo } = require('expo-server-sdk');
 
+// It starts the connection between server and db
 const db = require('./data/index');
-const Device = require('./data/deviceSchema');
-const Notification = require('./data/notificationSchema');
 
 // Here is each endpoint router
 const getUsers = require('./routeHandler/getUsers');
