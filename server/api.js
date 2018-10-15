@@ -19,11 +19,18 @@ const makeErrObj = msg => ({
 module.exports = (app, io) => {
   io.on('connection', (socket) => {
 		console.log("Client Connected");
-		socket.emit('update', { message: 'Hello Client',update: false });
 
-  	socket.on('update', (msg) => {
-    	console.log(msg);
+    socket.on('update subscriber', (subscriber) => {
+      // once we get a 'change color' event from one of our clients, we will send it to the rest of the clients
+      console.log('new or update subscriber', subscriber);
+      io.emit('update subscriber', subscriber);
     });
+
+    // disconnect is fired when a client leaves the server
+    socket.on('disconnect', () => {
+      console.log('user disconnected')
+    });
+
   });
   
   // It fetches only subscirbers

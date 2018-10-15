@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import socketIOClient from 'socket.io-client'
 import './App.css';
 
 import MDSpinner from "react-md-spinner";
@@ -14,19 +15,21 @@ class App extends Component {
     token: "",
     title: "",
     content: "",
+    color: 'white',
+    endpoint: "http://10.74.119.41:8001"
   };
 
-  componentDidMount() {
-    this.getUsers()
-      .then(res => {
-        console.log(res);
-        if (res.status === "error") {
-          this.setState({ subscribersNum: 0 });
-          throw res.msg;
-        } 
-        return this.setState({ devices: res, isFetched: true});
-      })
-      .catch(err => console.log(err));
+  async componentDidMount() {
+    try {
+      const res = await this.getUsers();
+      if (res.status === "error") {
+        this.setState({ subscribersNum: 0 });
+        throw res.msg;
+      }
+      return this.setState({ devices: res, isFetched: true});  
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   getUsers = async () => {
@@ -88,14 +91,39 @@ class App extends Component {
     this.setState({ content: e.target.value });
   };
 
-  render() {
-    const { devices, isFetched, subscribersNum, open, user, title, content } = this.state;
+  send = () => {
+    const socket = socketIOClient(this.state.endpoint)
     
+    console.log('emit is invoked from here');
+    socket.emit('change color', 'red');
+  };
+
+  setColor = (color) => {
+    this.setState({ color })
+  };
+
+  deleteDevice = (deviceTobeDeleted) => {
+    const { devices } = this.state;
+    const updatedDevices = devices.filter(device => {
+      return device.name !== deviceTobeDeleted.name;
+    });
+    this.setState({ devices: updatedDevices });
+  };
+
+  render() {
+    const { devices, isFetched, subscribersNum, open, user, title, content, endpoint } = this.state;
+
+    const socket = socketIOClient(endpoint);
+    socket.on('update subscriber', (data) => {
+      this.deleteDevice(data);
+    });
     return (
       <div className="App">
         <header className="App-header">
           <h1 className="App-title">subscriber contact list</h1>
         </header>
+        <button onClick={this.send}>Change Color</button>
+        <button id="blue" onClick={() => this.setColor('blue')}>Blue</button>
         <ModalComponent 
           open={open} 
           user={user} 
