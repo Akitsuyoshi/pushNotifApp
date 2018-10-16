@@ -62,7 +62,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   onOpenModal: (e) => {
-    const token = e.target.parentNode.getAttribute('token');
+    const token = e.currentTarget.childNodes[1].getAttribute('token');
     dispatch(changeModal(true, token));
   },
 });

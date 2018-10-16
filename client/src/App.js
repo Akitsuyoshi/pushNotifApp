@@ -18,7 +18,7 @@ class App extends Component {
   render() {
     const { isFetched, deleteDevice } = this.props;
 
-    const endpoint = "http://192.168.1.2:8001";
+    const endpoint = "http://10.136.131.89:8001";
     const socket = socketIOClient(endpoint);
     socket.on('update subscriber', (data) => {
       deleteDevice(data);

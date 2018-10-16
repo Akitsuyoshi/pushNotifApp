@@ -62,8 +62,11 @@ export const pushNotification = (title, message, token) => {
       if (!token) {
         alert('token is not set to this user, please try it again aftter reloading page');
       }
+
+      console.log(body);
     
       if (body.status === 'ok') {
+        console.log('status is ok');
         dispatch(changeModal(false, null));
         dispatch(storeNotificationToDB(token));
       } else {

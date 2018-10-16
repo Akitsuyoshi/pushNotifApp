@@ -6,13 +6,15 @@ const makeErrObj = msg => ({
   msg,
 });
 
-const putNotification =  async (req, res) => {
+const putNotification = async (req, res) => {
   const { deviceName, isOpened } = req.body;
   try {
-    const device = await Device.find({ "name": deviceName });
+    const device = await Device.find({ name: deviceName });
     const id = device._id;
 
-    const updatedNotification =  await Notification.findOneAndUpdate({ name: device._id }, { $set: { isOpened } }, { new: true }, null);
+    const updatedNotification = await Notification
+      .findOneAndUpdate({ name: id }, { $set: { isOpened } }, { new: true }, null);
+
     return res.json(updatedNotification);
   } catch (error) {
     console.log(error);
