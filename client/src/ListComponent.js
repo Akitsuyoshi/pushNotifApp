@@ -7,6 +7,10 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import DraftsIcon from '@material-ui/icons/Drafts';
 
+import { connect } from 'react-redux';
+import { changeModal } from './actions';
+
+
 const styles = theme => ({
   root: {
     display: "flex",
@@ -15,17 +19,17 @@ const styles = theme => ({
     width: '100%',
     margin: "auto",
     marginTop: 22,
-    maxWidth: "80%",
+    maxWidth: "83%",
     backgroundColor: theme.palette.background.paper,
   },
 });
 
-function SimpleList(props) {
+const SimpleList = (props) => {
   const { classes, devices, onOpenModal } = props;
   const Subscribers = devices.map((user, i) => {
     const date = user.registrationDate.replace(/T/, ' ').replace(/\..+/, '');
     return (
-      <ListItem button key={i}>
+      <ListItem button key={i} onClick={onOpenModal}>
         <ListItemIcon>
           <DraftsIcon/>
         </ListItemIcon>
@@ -39,7 +43,7 @@ function SimpleList(props) {
   });
   return (
     <div className={classes.root}>
-      <List component="nav" onClick={onOpenModal}>
+      <List component="nav">
         {Subscribers}
       </List>
     </div>
@@ -50,4 +54,20 @@ SimpleList.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(SimpleList);
+const ListWithStyles = withStyles(styles)(SimpleList);
+
+const mapStateToProps = state => ({
+  devices: state.devices,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onOpenModal: (e) => {
+    const token = e.target.parentNode.getAttribute('token');
+    dispatch(changeModal(true, token));
+  },
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ListWithStyles);
