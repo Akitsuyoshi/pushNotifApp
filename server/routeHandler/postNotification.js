@@ -10,8 +10,7 @@ const postNotification = async (req, res) => {
   const { token } = req.body;
   if (!token) return;
   try {
-    const notif = await Notification.findByDeviceToken(token);
-    const device = await Device.findOne({ "token": token });
+    const device = await Device.findOne({ token });
 
     const id = device._id;
     const newNotif = await Notification.create([{
@@ -20,10 +19,10 @@ const postNotification = async (req, res) => {
       isOpened: false,
       sentDate: Date.now(),
     }]);
-    return res.json(newNotif);
+    res.json(newNotif);
   } catch (error) {
     console.log(error);
-    return res.send(makeErrObj(error));
+    res.send(makeErrObj(error));
   }
 };
 
