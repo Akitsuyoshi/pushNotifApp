@@ -3,38 +3,47 @@ import socketIOClient from 'socket.io-client'
 import './App.css';
 
 import { connect } from 'react-redux';
-import { getUsers } from './actions';
-import { deleteDevice } from './actions';
+import { getUsers, deleteDevice, changePage } from './actions';
+import {AppBar, Tabs, Tab} from '@material-ui/core';
 
-import MDSpinner from "react-md-spinner";
-import ModalComponent from "./ModalComponent";
-import SimpleList from './ListComponent';
+import Subscribers from './components/Subscribers';
+import Notifications from './components/Notifications';
 
 class App extends Component {
   componentDidMount() {
     const { getSubscribers } = this.props;
     getSubscribers();
   }
-  render() {
-    const { isFetched, deleteDevice } = this.props;
 
-    const endpoint = "http://10.136.131.89:8001";
+  onChange = (_, value) => {
+    const { tabChange } = this.props;
+    tabChange(value);
+  }
+  render() {
+    const { deleteDevice, tab } = this.props;
+
+    const endpoint = process.env.HEROKU_URL || "http://192.168.1.2:8001";
     const socket = socketIOClient(endpoint);
     socket.on('update subscriber', (data) => {
       deleteDevice(data);
     });
     return (
       <div className="App">
-        <header className="App-header">
-          <h1 className="App-title">subscriber contact list</h1>
-        </header>
-        {(isFetched === false)? <div><MDSpinner size={40} /></div>: ""}
-        <ModalComponent />
-        <SimpleList />
+        <AppBar title="My App">
+          <Tabs onChange={this.onChange}>
+            <Tab label="&nbsp;HOME&nbsp;" style={{"width": "50%", "maxWidth": "400px"}} />
+            <Tab label="&nbsp;NOTIFICATION&nbsp;" style={{"width": "50%", "maxWidth": "400px"}} />
+          </Tabs>
+        </AppBar>
+        {(tab === 0) ? <Subscribers/>: <Notifications/>}
       </div>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  tab: state.tab,
+});
 
 const mapDispatchToProps = dispatch => ({
   getSubscribers: () => {
@@ -42,10 +51,13 @@ const mapDispatchToProps = dispatch => ({
   },
   deleteDevice: (deviceTobeDeleted) => {
     dispatch(deleteDevice(deviceTobeDeleted));
+  },
+  tabChange: (tab) => {
+    dispatch(changePage(tab));
   }
 });
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(App);
