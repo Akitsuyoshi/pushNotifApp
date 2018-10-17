@@ -33,5 +33,5 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "proxy": "http://192.168.1.2:8001/"
+  "proxy": "http://localhost:8001/"
 }
