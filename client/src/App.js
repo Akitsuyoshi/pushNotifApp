@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import socketIOClient from 'socket.io-client'
+// import socketIOClient from 'socket.io-client'
 import './App.css';
 
 import { connect } from 'react-redux';
@@ -20,13 +20,13 @@ class App extends Component {
     tabChange(value);
   }
   render() {
-    const { deleteDevice, tab } = this.props;
+    const { tab } = this.props;
 
-    const endpoint = process.env.HEROKU_URL || "http://192.168.1.2:8001";
-    const socket = socketIOClient(endpoint);
-    socket.on('update subscriber', (data) => {
-      deleteDevice(data);
-    });
+    // const endpoint = process.env.HEROKU_URL || "http://192.168.1.2:8001";
+    // const socket = socketIOClient(endpoint);
+    // socket.on('update subscriber', (data) => {
+    //   deleteDevice(data);
+    // });
     return (
       <div className="App">
         <AppBar title="My App">
