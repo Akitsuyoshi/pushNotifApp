@@ -1,11 +1,11 @@
 import React from 'react';
-import './App.css';
+import '../App.css';
 import { connect } from 'react-redux';
 import Modal from "react-responsive-modal";
 
-import store from './reducers/store';
+import store from '../reducers/store';
 
-import { changeModal, changeTitle, changeContent, pushNotification } from './actions';
+import { changeModal, changeTitle, changeContent, pushNotification } from '../actions';
 
 const ModalComponent = ({token, open, onCloseModal, sendNotification, updateTitle, updateContent, content, title}) => {
   return (

@@ -7,6 +7,7 @@ const putUser = require('./routeHandler/putUsers');
 const postNotification = require('./routeHandler/postNotification');
 const putNotification = require('./routeHandler/putNotification');
 const postSend = require('./routeHandler/postSend');
+const postRecipient = require('./routeHandler/postRecipient');
 
 
 module.exports = (app, io) => {
@@ -42,4 +43,7 @@ module.exports = (app, io) => {
 
   // It sends the notification to subscribers
   app.post('/api/send', postSend);
+
+  // It sends the recipient from expo to db
+  app.post('/api/recipient', postRecipient);
 };

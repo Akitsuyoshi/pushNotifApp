@@ -8,7 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import DraftsIcon from '@material-ui/icons/Drafts';
 
 import { connect } from 'react-redux';
-import { changeModal } from './actions';
+import { changeModal } from '../actions';
 
 
 const styles = theme => ({
@@ -24,8 +24,7 @@ const styles = theme => ({
   },
 });
 
-const SimpleList = (props) => {
-  const { classes, devices, onOpenModal } = props;
+const SimpleList = ({ classes, devices, onOpenModal }) => {
   const Subscribers = devices.map((user, i) => {
     const date = user.registrationDate.replace(/T/, ' ').replace(/\..+/, '');
     return (
