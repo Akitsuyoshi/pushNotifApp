@@ -3,11 +3,13 @@ require('./data/index');
 
 // Here is each endpoint router
 const getUsers = require('./routeHandler/getUsers');
+const getNotifications = require('./routeHandler/getNotifications');
 const putUser = require('./routeHandler/putUsers');
 const postNotification = require('./routeHandler/postNotification');
 const putNotification = require('./routeHandler/putNotification');
 const postSend = require('./routeHandler/postSend');
 const postRecipient = require('./routeHandler/postRecipient');
+const sendtoAll = require('./routeHandler/sendtoAll');
 
 
 module.exports = (app, io) => {
@@ -30,6 +32,9 @@ module.exports = (app, io) => {
   // It fetches only subscirbers
   app.get('/api/users', getUsers);
 
+  // It gets all notifications
+  app.get('/api/notifications', getNotifications);
+
   // It first seach device by deviceName, and then if it exists on db
   // updates the isSubscribed column.
   // If not, it creates a new device with the given data
@@ -46,4 +51,6 @@ module.exports = (app, io) => {
 
   // It sends the recipient from expo to db
   app.post('/api/recipient', postRecipient);
+
+  app.post('/api/sendtoAll', sendtoAll);
 };
