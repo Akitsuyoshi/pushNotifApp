@@ -1,21 +1,26 @@
 import { CHANGE_MODAL,
-         CHANGE_MODAL_WITHOUT_TOKEN,
+         CHANGE_MODAL_WITH_TOKENS,
          CHANGE_TITLE,
          CHANGE_CONTENT,
          CHANGE_IS_FETCHED,
          SET_DEVICES,
          DELETE_DEVICES,
          CHANGE_VISUALIZE_MODAL,
-         CHANGE_PAGE
+         CHANGE_PAGE,
+         CHANGE_OPEN_MODAL,
+         SET_NOTIFICATIONS,
 } from '../actions';
 
 const initialState = {
   devices: [],
+  notifications: [],
   isFetched: false,
   subscribersNum: null,
   open: false,
+  openNotification: false,
   openVisualize: false,
   token: "",
+  tokens: [],
   title: "",
   content: "",
   tab: 0,
@@ -26,8 +31,11 @@ const reducer = (state = initialState, action) => {
     case CHANGE_MODAL: {
       return { ...state, token: action.token, open: action.open };
     }
-    case CHANGE_MODAL_WITHOUT_TOKEN: {
-      return { ...state, open: action.open };
+    case CHANGE_MODAL_WITH_TOKENS: {
+      return { ...state, openNotification: true, tokens: action.tokens };
+    }
+    case CHANGE_OPEN_MODAL: {
+      return { ...state, tokens: action.tokens, openNotification: action.open };
     }
     case CHANGE_VISUALIZE_MODAL: {
       return { ...state, openVisualize: action.open };
@@ -52,6 +60,9 @@ const reducer = (state = initialState, action) => {
     }
     case CHANGE_PAGE: {
       return { ...state, tab: action.tab}
+    }
+    case SET_NOTIFICATIONS: {
+      return { ...state, notifications: action.notifications}
     }
     default: {
       return state;
