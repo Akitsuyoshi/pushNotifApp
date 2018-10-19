@@ -1,10 +1,12 @@
 export const CHANGE_MODAL = 'CHANGE_MODAL';
-export const CHANGE_MODAL_WITHOUT_TOKEN = 'CHANGE_MODAL_WITHOUT_TOKEN';
+export const CHANGE_MODAL_WITH_TOKENS = 'CHANGE_MODAL_WITH_TOKENS';
 export const CHANGE_VISUALIZE_MODAL = 'CHANGE_VISUALIZE_MODAL';
 export const CHANGE_TITLE = 'CHANGE_TITLE';
+export const CHANGE_OPEN_MODAL = 'CHANGE_OPEN_MODAL';
 export const CHANGE_CONTENT = 'CHANGE_CONTENT';
 export const CHANGE_IS_FETCHED = 'CHANGE_IS_FETCHED';
 export const SET_DEVICES = 'SET_DEVICES';
+export const SET_NOTIFICATIONS = 'SET_NOTIFICATIONS';
 export const DELETE_DEVICES = 'DELETE_DEVICES';
 export const CHANGE_PAGE = 'CHANGE_PAGE';
 
@@ -25,6 +27,24 @@ export const getUsers = () => {
     }
   }
 };
+
+export const getNotifications = () => {
+  return async (dispatch) => {
+    try {
+      dispatch(changeIsFetched(false));
+      const response = await fetch('/api/notifications');
+      const body = await response.json();
+      dispatch(changeIsFetched(true));
+
+      if (body.status !== "error") {
+        dispatch(setNotifications(body));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+};
+
 
 const storeRecepientToDB = async (recepient, notificationId) => {
   try {
@@ -89,6 +109,39 @@ export const pushNotification = (title, message, token) => {
   }
 };
 
+// It sends notificaiton to all subscribers at once
+export const pushNotifications = (title, message, tokens) => {
+  return async (dispatch) => {
+    try {
+      dispatch(changeIsFetched(false));
+      const response = await fetch('/api/sendtoAll', {
+        method: 'POST',
+        body: JSON.stringify({ title, message, tokens }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      dispatch(changeIsFetched(true));
+      const body = await response.json();
+
+      if (!tokens) {
+        alert('tokens is not set to this user, please try it again aftter reloading page');
+      }
+    
+      // if (body.status === 'ok') {
+        
+      //   // storeNotificationToDB(tokens, body);
+      // } else {
+      //   // dispatch(storeReceipentToDB(body));
+      //   alert('something wrong happed, it couldn\'t push notification');
+      // }
+      dispatch(changeOpenModal(false, null));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+};
+
 
 
 // here are action creaters
@@ -98,9 +151,15 @@ export const changeModal = (newOpen, newState) => ({
   token: newState,
 });
 
-export const changeModalWithoutToken = (newOpen) => ({
-  type: CHANGE_MODAL_WITHOUT_TOKEN,
+export const changeModalWithTokens = (tokens) => ({
+  type: CHANGE_MODAL_WITH_TOKENS,
+  tokens,
+});
+
+export const changeOpenModal = (newOpen, newState) => ({
+  type: CHANGE_OPEN_MODAL,
   open: newOpen,
+  tokens: newState,
 });
 
 export const changeVisualizeModal = (newOpen)  => ({
@@ -127,6 +186,11 @@ export const setDevices = (devices) => ({
   type: SET_DEVICES,
   devices,
 });
+
+export const setNotifications = (notifications) => ({
+  type: SET_NOTIFICATIONS,
+  notifications,
+})
 
 export const deleteDevice = (deviceTobeDeleted) => ({
   type: DELETE_DEVICES,

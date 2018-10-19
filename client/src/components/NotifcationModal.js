@@ -3,31 +3,57 @@ import '../App.css';
 import { connect } from 'react-redux';
 import Modal from "react-responsive-modal";
 
-import BarChart from './BarChart';
-import { changeVisualizeModal } from '../actions';
+import store from '../reducers/store';
 
-const NotificaitonModal = ({ openVisualize, onCloseModal }) => {
+import { changeOpenModal, changeTitle, changeContent, pushNotifications } from '../actions';
+
+const ModalComponent = ({tokens, openNotification, onCloseModal, sendNotification, updateTitle, updateContent, content, title}) => {
   return (
     <div>
-      <Modal open={openVisualize} onClose={onCloseModal} center>
+      <Modal open={openNotification} onClose={onCloseModal} center>
           <h2>Push Notification</h2>
-          <BarChart />
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            store.dispatch(pushNotifications(title, content, tokens));
+          }}>
+            <label>
+              Title:
+              <input type="text" name="title" onChange={updateTitle} />
+            </label>
+            <div></div>
+            <label>
+              Body:
+              <input type="text" name="content" onChange={updateContent} />
+            </label>
+              <input type="submit" value="Submit" />
+          </form>
         </Modal>
     </div>
   )
 }
 
 const mapStateToProps = state => ({
-  openVisualize: state.openVisualize,
+  openNotification: state.openNotification,
+  tokens: state.tokens,
+  content: state.content,
+  title: state.title,
 });
 
 const mapDispatchToProps = dispatch => ({
   onCloseModal: () => {
-    dispatch(changeVisualizeModal(false));
+    dispatch(changeOpenModal(false, null));
+  },
+  updateTitle: (e) => {
+    const newTitle = e.target.value;
+    dispatch(changeTitle(newTitle));
+  },
+  updateContent: (e) => {
+    const newContent = e.target.value;
+    dispatch(changeContent(newContent));
   },
 });
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(NotificaitonModal);
+)(ModalComponent);

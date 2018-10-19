@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const io = require('socket.io');
 const cluster = require('cluster');
-const numCPUs = require('os').cpus().length - 1;
+const numCPUs = require('os').cpus().length;
 
 const api = require('./server/api');
 const app = express();

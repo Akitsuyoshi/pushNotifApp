@@ -4,39 +4,46 @@ import '../App.css';
 import { connect } from 'react-redux';
 
 import MDSpinner from "react-md-spinner";
-import ModalComponent from "./ModalComponent";
 import NotificaitonModal from './NotifcationModal';
 import NotificationList from './NotificationList';
 
-import { changeModalWithoutToken } from '../actions';
+import { changeModalWithTokens, getNotifications } from '../actions';
 
 class Notifications extends Component {
   componentDidMount() {
+    getNotifications();
   }
   render() {
-    const { isFetched, openModal } = this.props;
+    const { isFetched, openModal, devices } = this.props;
 
     return (
       <div className="bodyContent">
         <h3>Contact List</h3>
         <hr />
-        <button onClick={openModal} title="open visualize modal">New Push Notification</button>
+        <button onClick={() => {
+          const tokens = devices.map(device => device.token);
+          openModal(tokens)
+        }} title="open visualize modal">New Push Notification</button>
         {(isFetched === false)? <div><MDSpinner size={40} /></div>: ""}
         <NotificaitonModal/>
-        <ModalComponent />
         <NotificationList />
       </div>
     );
   }
 }
 
+const mapStateToProps = state => ({
+  devices: state.devices,
+  tokens: state.tokens,
+});
+
 const mapDispatchToProps = dispatch => ({
-  openModal: () => {
-    dispatch(changeModalWithoutToken(true));
+  openModal: (devices) => {
+    dispatch(changeModalWithTokens(devices));
   }
 });
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(Notifications);
