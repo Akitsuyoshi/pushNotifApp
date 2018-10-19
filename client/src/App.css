@@ -4,6 +4,8 @@
 
 header {
   height: 8%;
+  min-height: 40px;
+  max-height: 46px;
 }
 
 .App-header {
