@@ -11,7 +11,6 @@ import NotificaitonModal from './NotifcationModal';
 const Subscribers = ({ isFetched }) => {
   return (
     <div className="bodyContent">
-      <h3>Contact List</h3>
       <hr />
       {(isFetched === false)? <div><MDSpinner size={40} /></div>: ""}
       <NotificaitonModal/>

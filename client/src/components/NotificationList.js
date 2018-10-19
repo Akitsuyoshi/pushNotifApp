@@ -24,9 +24,9 @@ const styles = theme => ({
   },
 });
 
-const SimpleList = ({ classes, devices, onOpenModal }) => {
-  const Subscribers = devices.map((user, i) => {
-    const date = user.registrationDate.replace(/T/, ' ').replace(/\..+/, '');
+const NotificationList = ({ classes, notifications, onOpenModal }) => {
+  const Notifications = notifications.map((notification, i) => {
+    const date = notification.sentDate.replace(/T/, ' ').replace(/\..+/, '');
     return (
       <ListItem button key={i} onClick={onOpenModal}>
         <ListItemIcon>
@@ -34,8 +34,7 @@ const SimpleList = ({ classes, devices, onOpenModal }) => {
         </ListItemIcon>
           <ListItemText 
             style={{ "width": "100%", "height": "18%" }}
-            primary={user.name + ' : ' + user.os + ' : ' + date}
-            token={user.token}
+            primary={notification._id + ' : ' + date}
           />
       </ListItem>
     );
@@ -43,20 +42,20 @@ const SimpleList = ({ classes, devices, onOpenModal }) => {
   return (
     <div className={classes.root}>
       <List component="nav">
-        {Subscribers}
+        {Notifications}
       </List>
     </div>
   );
 }
 
-SimpleList.propTypes = {
+NotificationList.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-const ListWithStyles = withStyles(styles)(SimpleList);
+const ListWithStyles = withStyles(styles)(NotificationList);
 
 const mapStateToProps = state => ({
-  devices: state.devices,
+  notifications: state.notifications,
 });
 
 const mapDispatchToProps = dispatch => ({
