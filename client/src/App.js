@@ -20,12 +20,12 @@ class App extends Component {
     tabChange(value);
   }
   render() {
-    const { tab } = this.props;
+    const { tab, deleteSentDevice } = this.props;
 
     const endpoint = process.env.HEROKU_URL || "http:/192.168.1.2:8001";
     const socket = socketIOClient(endpoint);
     socket.on('update subscriber', (data) => {
-      deleteDevice(data);
+      deleteSentDevice(data);
     });
     return (
       <div className="App">
@@ -49,7 +49,7 @@ const mapDispatchToProps = dispatch => ({
   getSubscribers: () => {
     dispatch(getUsers());
   },
-  deleteDevice: (deviceTobeDeleted) => {
+  deleteSentDevice: (deviceTobeDeleted) => {
     dispatch(deleteDevice(deviceTobeDeleted));
   },
   tabChange: (tab) => {
